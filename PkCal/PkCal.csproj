@@ -43,6 +43,7 @@
       <HintPath>..\packages\RestSharp.106.11.7\lib\net452\RestSharp.dll</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Reflection, Version=4.1.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Reflection.4.1.0\lib\net462\System.Reflection.dll</HintPath>
@@ -67,6 +68,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Models\DataFile.cs" />
     <Compile Include="Models\FailedResult.cs" />
     <Compile Include="Models\Result.cs" />
     <Compile Include="Models\SuccessResult.cs" />
@@ -74,6 +76,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Tools\FileFromWebObtainer.cs" />
     <Compile Include="Tools\FileSaver.cs" />
+    <Compile Include="Tools\PathCreator.cs" />
     <Compile Include="Tools\WelcomeMessage.cs" />
   </ItemGroup>
   <ItemGroup>

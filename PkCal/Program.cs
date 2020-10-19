@@ -6,6 +6,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Ical.Net;
+using System.Configuration;
+using PkCal.Models;
 
 namespace PkCal
 {
@@ -15,46 +17,38 @@ namespace PkCal
         {
             WelcomeMessage.Show();
 
-            var directoryWithConfigName = "config";
-            var uriCalendarFileName = "calendar.ws";
-            var oldCalendarDataFileName = "oldCalendarData.ws";
-            var currentCalendarDataFileName = "currentCalendarData.ws";
+            var configDirectoryName = ConfigurationManager.AppSettings["ConfigDirectoryName"];
+            var calendarEndpointFileName = ConfigurationManager.AppSettings["EndpointCalendarFileName"];
+            var calendarDataFileName = ConfigurationManager.AppSettings["CalendarDataFileName"];
 
             var currentDirectory = Directory.GetCurrentDirectory();
-            var sb = new StringBuilder();
 
-            sb.Append(currentDirectory);
-            sb.Append("\\");
-            sb.Append(directoryWithConfigName);
+            var configDirPathBuilder = new PathCreator(currentDirectory);
+            configDirPathBuilder.AddDirectory(configDirectoryName);
 
-            var configDirectoryPath = sb.ToString();
+            var calendarEndpointFilePathBuilder = new PathCreator(configDirPathBuilder.Path);
+            calendarEndpointFilePathBuilder.AddFile(calendarDataFileName);
 
-            sb.Append("\\");
+            var calendarDataFilePathBuilder = new PathCreator(configDirPathBuilder.Path);
+            calendarDataFilePathBuilder.AddFile(calendarDataFileName);
 
-            var uriCalendarFilePath = sb.ToString() + uriCalendarFileName;
-            var oldCalendarDataFilePath = sb.ToString() + oldCalendarDataFileName;
-            var currentCalendarDataFilePath = sb.ToString() + currentCalendarDataFileName;
-
+            var calendarEndpointDataFile = new DataFile(calendarEndpointFilePathBuilder.Path);
+            var calendarDataFile = new DataFile(calendarDataFilePathBuilder.Path);
 
             Console.WriteLine("Sprawdzam, czy folder z konfiguracją istnieje, jeśli nie zostanie on utworzony...");
-            if (!Directory.Exists(configDirectoryPath))
+            if (!Directory.Exists(configDirPathBuilder.Path))
             {
-                Directory.CreateDirectory(configDirectoryPath);
-                Console.WriteLine("Utworzono folder w lokalizacji: " + configDirectoryPath);
+                Directory.CreateDirectory(configDirPathBuilder.Path);
+                Console.WriteLine("Utworzono folder w lokalizacji: " + configDirPathBuilder.Path);
             }
 
             Console.WriteLine();
 
-            sb.Clear();
-            sb.Append(configDirectoryPath);
-            sb.Append("\\"); 
-            sb.Append(uriCalendarFileName);
+            calendarEndpointDataFile.CheckIfExists();
 
-            bool isFileWithUriCalendarExists = File.Exists(uriCalendarFilePath);
+            Console.WriteLine(string.Format("Sprawdzam, czy plik z linkiem do kalendarza istnieje... {0}", calendarEndpointDataFile.Exists ? "TAK" : "NIE"));
 
-            Console.WriteLine(string.Format("Sprawdzam, czy plik z linkiem do kalendarza istnieje... {0}", isFileWithUriCalendarExists ? "TAK" : "NIE"));
-
-            if (isFileWithUriCalendarExists)
+            if (calendarEndpointDataFile.Exists)
             {
                 bool isInputCorrect = false;
 
@@ -69,11 +63,12 @@ namespace PkCal
                     {
                         case "t":
                             isInputCorrect = true;
+                            
                             Console.WriteLine("Wprowadź adres url:");
 
                             var url = Console.ReadLine();
-                            var fs = new FileSaver(uriCalendarFilePath, url);
-                            var result = fs.SaveFile();
+                            calendarEndpointDataFile.SetContent(url);
+                            var result = calendarEndpointDataFile.SaveContentToFile();
 
                             if (!result.Success)
                             {
@@ -98,8 +93,8 @@ namespace PkCal
                 Console.WriteLine("Wprowadź adres url:");
 
                 var url = Console.ReadLine();
-                var fs = new FileSaver(uriCalendarFilePath, url);
-                var result = fs.SaveFile();
+                calendarEndpointDataFile.SetContent(url);
+                var result = calendarEndpointDataFile.SaveContentToFile();
 
                 if (!result.Success)
                 {
@@ -113,14 +108,14 @@ namespace PkCal
 
             Console.WriteLine();
 
-            bool isFileWithOldCalendarDataExists = File.Exists(oldCalendarDataFilePath);
+            calendarDataFile.CheckIfExists();
 
-            Console.WriteLine(string.Format("Sprawdzam, czy plik z starymi danymi kalendarza istnieje... {0}", isFileWithOldCalendarDataExists ? "TAK" : "NIE"));
+            Console.WriteLine(string.Format("Sprawdzam, czy plik z starymi danymi kalendarza istnieje... {0}", calendarDataFile.Exists ? "TAK" : "NIE"));
 
-            if (!isFileWithOldCalendarDataExists)
+            if (!calendarDataFile.Exists)
             {
-                var fs = new FileSaver(oldCalendarDataFilePath, "initial");
-                var result = fs.SaveFile();
+                calendarDataFile.SetContent("initial");
+                var result = calendarDataFile.SaveContentToFile();
 
                 if (!result.Success)
                 {
@@ -130,24 +125,7 @@ namespace PkCal
                 }
             }
 
-            bool isFileWithCurrentCalendarDataExists = File.Exists(currentCalendarDataFilePath);
-
-            Console.WriteLine(string.Format("Sprawdzam, czy plik z nowymi danymi kalendarza istnieje... {0}", isFileWithCurrentCalendarDataExists ? "TAK" : "NIE"));
-
-            if (!isFileWithCurrentCalendarDataExists)
-            {
-                var fs = new FileSaver(currentCalendarDataFilePath, "initial");
-                var result = fs.SaveFile();
-
-                if (!result.Success)
-                {
-                    Console.WriteLine("[BŁĄD] " + result);
-                    Console.WriteLine("Naciśnij przycisk aby zamknąć program");
-                    Environment.Exit(-1);
-                }
-            }
-
-            var calendarUrl = File.ReadAllLines(uriCalendarFilePath);
+            var calendarUrl = File.ReadAllLines(calendarEndpointFilePathBuilder.Path);
 
             if (calendarUrl == null)
             {
@@ -168,20 +146,20 @@ namespace PkCal
             Console.WriteLine("Pobieranie danych z kalendarza...");
             var dataCalendarResult = fw.GetCalendarData();
 
-            if (!dataCalendarResult)
+            if (!dataCalendarResult.Success)
             {
-                Console.WriteLine("[BŁĄD] Błąd pobierania danych z url kalendarza!");
+                Console.WriteLine(string.Format("[BŁĄD] {0}", dataCalendarResult));
                 Console.WriteLine("Naciśnij przycisk aby zamknąć program");
                 Environment.Exit(-1);
             }
 
-            var oldDataCalendarFromFile = File.ReadAllText(oldCalendarDataFilePath);
+            var oldDataCalendarFromFile = File.ReadAllText(calendarEndpointFilePathBuilder.Path);
 
             if (oldDataCalendarFromFile.Contains("initial"))
             {
-                var fs = new FileSaver(oldCalendarDataFilePath, fw.Content);
+                var fs = new FileSaver(calendarEndpointFilePathBuilder.Path, fw.Content);
                 fs.SaveFile();
-                oldDataCalendarFromFile = File.ReadAllText(oldCalendarDataFilePath);
+                oldDataCalendarFromFile = File.ReadAllText(calendarEndpointFilePathBuilder.Path);
             }
 
             var oldCalendar = Calendar.Load(oldDataCalendarFromFile);
@@ -215,7 +193,7 @@ namespace PkCal
                 Console.WriteLine("BRAK NOWYCH ZMIAN W KALENDARZU!");
             }
 
-            var calendarSaver = new FileSaver(oldCalendarDataFilePath, fw.Content);
+            var calendarSaver = new FileSaver(calendarEndpointFilePathBuilder.Path, fw.Content);
             calendarSaver.SaveFile();
 
             Console.ReadKey();

@@ -1,4 +1,5 @@
-﻿using RestSharp;
+﻿using PkCal.Models;
+using RestSharp;
 using System;
 using System.Net;
 
@@ -16,9 +17,11 @@ namespace PkCal.Tools
             _client = new RestClient(_uri);
         }
 
-        public bool GetCalendarData()
+        public Result GetCalendarData()
         {
             var acceptedContentType = "text/calendar";
+
+            _client.Timeout = 5000;
 
             var request = new RestRequest(Method.GET);
             var response = _client.Execute(request);
@@ -28,10 +31,10 @@ namespace PkCal.Tools
             if (statusResponse.Equals(HttpStatusCode.OK) && response.ContentType.Contains(acceptedContentType))
             {
                 Content = response.Content;
-                return true;
+                return new SuccessResult();
             }
 
-            return false;
+            return new FailedResult(response.ErrorMessage);
         }
     }
 }
