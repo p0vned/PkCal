@@ -27,7 +27,7 @@ namespace PkCal
             configDirPathBuilder.AddDirectory(configDirectoryName);
 
             var calendarEndpointFilePathBuilder = new PathCreator(configDirPathBuilder.Path);
-            calendarEndpointFilePathBuilder.AddFile(calendarDataFileName);
+            calendarEndpointFilePathBuilder.AddFile(calendarEndpointFileName);
 
             var calendarDataFilePathBuilder = new PathCreator(configDirPathBuilder.Path);
             calendarDataFilePathBuilder.AddFile(calendarDataFileName);
@@ -35,139 +35,108 @@ namespace PkCal
             var calendarEndpointDataFile = new DataFile(calendarEndpointFilePathBuilder.Path);
             var calendarDataFile = new DataFile(calendarDataFilePathBuilder.Path);
 
-            Console.WriteLine("Sprawdzam, czy folder z konfiguracją istnieje, jeśli nie zostanie on utworzony...");
+            Console.WriteLine("Sprawdzam, czy folder z konfiguracją istnieje, jeśli nie zostanie on utworzony...\n");
             if (!Directory.Exists(configDirPathBuilder.Path))
             {
                 Directory.CreateDirectory(configDirPathBuilder.Path);
-                Console.WriteLine("Utworzono folder w lokalizacji: " + configDirPathBuilder.Path);
+                ConsoleMessage.PrintSuccessMessage("[SUKCES] ");
+                Console.WriteLine(string.Format("Utworzono folder w lokalizacji: {0}", configDirPathBuilder.Path));
             }
-
-            Console.WriteLine();
 
             calendarEndpointDataFile.CheckIfExists();
 
-            Console.WriteLine(string.Format("Sprawdzam, czy plik z linkiem do kalendarza istnieje... {0}", calendarEndpointDataFile.Exists ? "TAK" : "NIE"));
-
-            if (calendarEndpointDataFile.Exists)
+            Console.WriteLine("Sprawdzam, czy plik z URL do kalendarza istnieje, jeśli nie zostanie on utworzony...");
+            if (!calendarEndpointDataFile.Exists)
             {
-                bool isInputCorrect = false;
-
-                while (!isInputCorrect)
-                {
-                    Console.WriteLine("Czy chcesz zmienić adres URL? [T/N] ");
-                    var input = Console.ReadLine();
-
-                    input = input.ToLower();
-
-                    switch (input)
-                    {
-                        case "t":
-                            isInputCorrect = true;
-                            
-                            Console.WriteLine("Wprowadź adres url:");
-
-                            var url = Console.ReadLine();
-                            calendarEndpointDataFile.SetContent(url);
-                            var result = calendarEndpointDataFile.SaveContentToFile();
-
-                            if (!result.Success)
-                            {
-                                Console.WriteLine("[BŁĄD] " + result);
-                                Console.WriteLine("Naciśnij przycisk aby zamknąć program");
-                                Environment.Exit(-1);
-                            }
-
-                            Console.WriteLine("[SUKCES] Poprawnie utworzono plik z linkiem do kalendarza!");
-                            break;
-                        case "n":
-                            isInputCorrect = true;
-                            break;
-                        default:
-                            Console.WriteLine("Prosze wprowadzić poprawny znak odpowiedzi!");
-                            break;
-                    }
-                }
-            }
-            else
-            {
-                Console.WriteLine("Wprowadź adres url:");
-
-                var url = Console.ReadLine();
-                calendarEndpointDataFile.SetContent(url);
                 var result = calendarEndpointDataFile.SaveContentToFile();
-
+                
                 if (!result.Success)
-                {
-                    Console.WriteLine("[BŁĄD] " + result);
-                    Console.WriteLine("Naciśnij przycisk aby zamknąć program");
-                    Environment.Exit(-1);
-                }
+                    EndProgramError(result.ToString());
 
-                Console.WriteLine("[SUKCES] Poprawnie utworzono plik z linkiem do kalendarza!");
+                ConsoleMessage.PrintSuccessMessage("[SUKCES] ");
+                Console.WriteLine(string.Format("Utworzono plik z URL do kalendarza w lokalizacji: {0}", calendarEndpointDataFile.Path));
             }
-
-            Console.WriteLine();
 
             calendarDataFile.CheckIfExists();
 
-            Console.WriteLine(string.Format("Sprawdzam, czy plik z starymi danymi kalendarza istnieje... {0}", calendarDataFile.Exists ? "TAK" : "NIE"));
-
+            Console.WriteLine("Sprawdzam, czy plik z danymi kalendarza istnieje jeśli nie zostanie on utworzony...");
             if (!calendarDataFile.Exists)
             {
                 calendarDataFile.SetContent("initial");
                 var result = calendarDataFile.SaveContentToFile();
 
                 if (!result.Success)
+                    EndProgramError(result.ToString());
+
+                ConsoleMessage.PrintSuccessMessage("[SUKCES] ");
+                Console.WriteLine(string.Format("Utworzono plik z danymi kalendarza w lokalizacji: {0}", calendarDataFile.Path));
+            }
+
+            Console.WriteLine("\nCzy chcesz zmienić adres URL? Jeśli to pierwsze uruchomienie programu wybierz T [T/N]");
+
+            bool isInputCorrect = false;
+
+            while (!isInputCorrect)
+            {
+                var input = Console.ReadLine();
+
+                input = input.ToLower();
+
+                switch (input)
                 {
-                    Console.WriteLine("[BŁĄD] " + result);
-                    Console.WriteLine("Naciśnij przycisk aby zamknąć program");
-                    Environment.Exit(-1);
+                    case "t":
+                        isInputCorrect = true;
+
+                        Console.WriteLine("Wprowadź adres URL do kalendarza:");
+
+                        var url = Console.ReadLine();
+                        calendarEndpointDataFile.SetContent(url);
+                        var result = calendarEndpointDataFile.SaveContentToFile();
+
+                        if (!result.Success)
+                            EndProgramError(result.ToString());
+
+                        ConsoleMessage.PrintSuccessMessage("[SUKCES] ");
+                        Console.WriteLine("\nPoprawnie utworzono plik z linkiem do kalendarza!");
+                        break;
+                    case "n":
+                        isInputCorrect = true;
+                        calendarEndpointDataFile.ReadContentFromFile();
+                        break;
+                    default:
+                        Console.WriteLine("Prosze wprowadzić poprawny znak odpowiedzi!");
+                        break;
                 }
             }
 
-            var calendarUrl = File.ReadAllLines(calendarEndpointFilePathBuilder.Path);
+            if (calendarEndpointDataFile.Content == null)
+                EndProgramError("Plik zawierający url do kalendarza jest pusty!");
 
-            if (calendarUrl == null)
-            {
-                Console.WriteLine("[BŁĄD] Plik zawierający url do kalendarza jest pusty!");
-                Console.WriteLine("Naciśnij przycisk aby zamknąć program");
-                Environment.Exit(-1);
-            }
+            if (!calendarEndpointDataFile.Content.Contains("http"))
+                EndProgramError("Adres do kalendarza jest nieprawidłowy!");
 
-            if (!calendarUrl[0].Contains("http"))
-            {
-                Console.WriteLine("[BŁĄD] Adres do kalendarza jest nieprawidłowy!");
-                Console.WriteLine("Naciśnij przycisk aby zamknąć program");
-                Environment.Exit(-1);
-            }
-
-            var fw = new FileFromWebObtainer(new Uri(calendarUrl[0]));
+            var calendarDataObtainer = new FileFromWebObtainer(new Uri(calendarEndpointDataFile.Content));
 
             Console.WriteLine("Pobieranie danych z kalendarza...");
-            var dataCalendarResult = fw.GetCalendarData();
+            var dataCalendarResult = calendarDataObtainer.GetCalendarData();
 
             if (!dataCalendarResult.Success)
+                EndProgramError(dataCalendarResult.ToString());
+
+            calendarDataFile.ReadContentFromFile();
+
+            if (calendarDataFile.Content.Contains("initial"))
             {
-                Console.WriteLine(string.Format("[BŁĄD] {0}", dataCalendarResult));
-                Console.WriteLine("Naciśnij przycisk aby zamknąć program");
-                Environment.Exit(-1);
+                calendarDataFile.SetContent(calendarDataObtainer.Content);
+                calendarDataFile.SaveContentToFile();
             }
 
-            var oldDataCalendarFromFile = File.ReadAllText(calendarEndpointFilePathBuilder.Path);
-
-            if (oldDataCalendarFromFile.Contains("initial"))
-            {
-                var fs = new FileSaver(calendarEndpointFilePathBuilder.Path, fw.Content);
-                fs.SaveFile();
-                oldDataCalendarFromFile = File.ReadAllText(calendarEndpointFilePathBuilder.Path);
-            }
-
-            var oldCalendar = Calendar.Load(oldDataCalendarFromFile);
-            var currentCalendar = Calendar.Load(fw.Content);
+            var calendarFromFile = Calendar.Load(calendarDataFile.Content);
+            var calendarFormWeb = Calendar.Load(calendarDataObtainer.Content);
 
             Console.Clear();
 
-            foreach (var calendarEvent in oldCalendar.Events)
+            foreach (var calendarEvent in calendarFromFile.Events)
             {
                 Console.WriteLine("======");
                 Console.WriteLine(string.Format("[KURS] {0}", calendarEvent.Categories.SingleOrDefault()));
@@ -178,25 +147,46 @@ namespace PkCal
 
             Console.WriteLine("==================================");
 
-            var oldCalendarEvetsUid = oldCalendar.Events.Select(s => s.Uid);
-            var currentCallendarEventsUid = currentCalendar.Events.Select(s => s.Uid);
+            var eventsInCalendarFile = calendarFromFile.Events;
+            var eventsInCalendarFromWeb = calendarFromFile.Events;
 
-            var newEvents = currentCallendarEventsUid.Where(w => !oldCalendarEvetsUid.Any(c => c.Equals(w))).ToList();
+            var newEvents = eventsInCalendarFromWeb.Where(w => !eventsInCalendarFile.Any(c => c.Equals(w))).ToList();
 
             if (newEvents.Count != 0)
-            {  
+            {
+                ConsoleMessage.PrintWarningMessage("[UWAGA] ");
                 Console.WriteLine("ZNALEZIONO NOWE ZMIANY W KALENDARZU!");
-                Console.WriteLine("TODO");
+
+                foreach (var newEvent in newEvents)
+                {
+                    Console.WriteLine("======");
+                    Console.WriteLine(string.Format("[KURS] {0}", newEvent.Categories.SingleOrDefault()));
+                    Console.WriteLine(string.Format("[NAZWA WYDARZENIA] {0}", newEvent.Summary));
+                    Console.WriteLine(string.Format("[OPIS] {0}", newEvent.Description));
+                    Console.WriteLine(string.Format("[TERMIN DO] {0}", newEvent.DtEnd));
+
+                    calendarDataFile.SetContent(calendarDataObtainer.Content);
+                }
             }
             else
-            {
                 Console.WriteLine("BRAK NOWYCH ZMIAN W KALENDARZU!");
-            }
 
-            var calendarSaver = new FileSaver(calendarEndpointFilePathBuilder.Path, fw.Content);
-            calendarSaver.SaveFile();
+            calendarDataFile.SaveContentToFile();
 
             Console.ReadKey();
+        }
+
+        private static void EndProgramError(string message)
+        {
+            var tag = "[BŁĄD] ";
+            
+            ConsoleMessage.PrintErrorMessage(tag);
+            Console.WriteLine(message);
+            Console.WriteLine();
+            Console.WriteLine("Naciśnij przycisk aby zamknąć program");
+
+            Console.ReadKey();
+            Environment.Exit(-1);
         }
     }
 }

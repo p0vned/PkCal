@@ -38,9 +38,6 @@ namespace PkCal.Models
 
         public Result SaveContentToFile()
         {
-            if (!Exists)
-                return new FailedResult("Nie można zapisać, plik nie istnieje!");
-            
             try
             {
                 File.WriteAllText(Path, Content);
@@ -60,7 +57,7 @@ namespace PkCal.Models
 
             try
             {
-                File.ReadAllText(Path);
+                Content = File.ReadAllText(Path);
             }
             catch (Exception e)
             {
