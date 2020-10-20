@@ -128,12 +128,12 @@ namespace PkCal
                 calendarDataFile.SaveContentToFile();
             }
 
-            var calendarFromFile = Calendar.Load(calendarDataFile.Content);
-            var calendarFormWeb = Calendar.Load(calendarDataObtainer.Content);
+            var calendarFile = Calendar.Load(calendarDataFile.Content);
+            var calendarWeb = Calendar.Load(calendarDataObtainer.Content);
 
             Console.Clear();
 
-            foreach (var calendarEvent in calendarFromFile.Events)
+            foreach (var calendarEvent in calendarFile.Events)
             {
                 Console.WriteLine("======");
                 Console.WriteLine(string.Format("[KURS] {0}", calendarEvent.Categories.SingleOrDefault()));
@@ -144,8 +144,8 @@ namespace PkCal
 
             Console.WriteLine("==================================");
 
-            var eventsInCalendarFile = calendarFromFile.Events;
-            var eventsInCalendarFromWeb = calendarFromFile.Events;
+            var eventsInCalendarFile = calendarFile.Events;
+            var eventsInCalendarFromWeb = calendarWeb.Events;
 
             var newEvents = eventsInCalendarFromWeb.Where(w => !eventsInCalendarFile.Any(c => c.Equals(w))).ToList();
 
