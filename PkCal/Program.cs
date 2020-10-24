@@ -175,7 +175,7 @@ namespace PkCal
 
         private static void EndProgramError(string message)
         {
-            var tag = "[BŁĄD] ";
+            const string tag = "[BŁĄD] ";
             
             ConsoleMessage.PrintErrorMessage(tag);
             Console.WriteLine(message);
