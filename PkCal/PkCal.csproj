@@ -76,7 +76,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Tools\ConsoleMessage.cs" />
     <Compile Include="Tools\FileFromWebObtainer.cs" />
-    <Compile Include="Tools\FileSaver.cs" />
     <Compile Include="Tools\PathCreator.cs" />
     <Compile Include="Tools\WelcomeMessage.cs" />
   </ItemGroup>
