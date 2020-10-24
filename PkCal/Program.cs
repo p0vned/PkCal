@@ -144,12 +144,12 @@ namespace PkCal
 
             Console.WriteLine("==================================");
 
-            var eventsInCalendarFile = calendarFile.Events;
-            var eventsInCalendarFromWeb = calendarWeb.Events;
+            var eventsInCalendarFile = calendarFile.Events.ToHashSet();
+            var eventsInCalendarFromWeb = calendarWeb.Events.ToHashSet();
 
-            var newEvents = eventsInCalendarFromWeb.Where(w => !eventsInCalendarFile.Any(c => c.Equals(w))).ToList();
+            var newEvents = eventsInCalendarFromWeb.Except(eventsInCalendarFile);
 
-            if (newEvents.Count != 0)
+            if (newEvents.Count() != 0)
             {
                 ConsoleMessage.PrintWarningMessage("[UWAGA] ");
                 Console.WriteLine("ZNALEZIONO NOWE ZMIANY W KALENDARZU!");
