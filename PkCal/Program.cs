@@ -40,8 +40,6 @@ namespace PkCal
                 Console.WriteLine(string.Format("Utworzono folder w lokalizacji: {0}", configDirPathBuilder.Path));
             }
 
-            calendarEndpointDataFile.CheckIfExists();
-
             Console.WriteLine("Sprawdzam, czy plik z URL do kalendarza istnieje, jeśli nie zostanie on utworzony...");
             if (!calendarEndpointDataFile.Exists)
             {
@@ -53,8 +51,6 @@ namespace PkCal
                 ConsoleMessage.PrintSuccessMessage("[SUKCES] ");
                 Console.WriteLine(string.Format("Utworzono plik z URL do kalendarza w lokalizacji: {0}", calendarEndpointDataFile.Path));
             }
-
-            calendarDataFile.CheckIfExists();
 
             Console.WriteLine("Sprawdzam, czy plik z danymi kalendarza istnieje jeśli nie zostanie on utworzony...");
             if (!calendarDataFile.Exists)
