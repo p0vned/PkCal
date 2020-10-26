@@ -35,8 +35,7 @@ namespace PkCal
             if (!Directory.Exists(configDirPathBuilder.Path))
             {
                 Directory.CreateDirectory(configDirPathBuilder.Path);
-                ConsoleMessage.PrintSuccessMessage("[SUKCES] ");
-                Console.WriteLine(string.Format("Utworzono folder w lokalizacji: {0}", configDirPathBuilder.Path));
+                ConsoleMessage.PrintSuccessMessage(string.Format("Utworzono folder w lokalizacji: {0}", configDirPathBuilder.Path));
             }
 
             Console.WriteLine("Sprawdzam, czy plik z URL do kalendarza istnieje, jeśli nie zostanie on utworzony...");
@@ -47,8 +46,7 @@ namespace PkCal
                 if (!result.Success)
                     EndProgramError(result.ToString());
 
-                ConsoleMessage.PrintSuccessMessage("[SUKCES] ");
-                Console.WriteLine(string.Format("Utworzono plik z URL do kalendarza w lokalizacji: {0}", calendarEndpointDataFile.Path));
+                ConsoleMessage.PrintSuccessMessage(string.Format("Utworzono plik z URL do kalendarza w lokalizacji: {0}", calendarEndpointDataFile.Path));
             }
 
             Console.WriteLine("Sprawdzam, czy plik z danymi kalendarza istnieje jeśli nie zostanie on utworzony...");
@@ -60,8 +58,7 @@ namespace PkCal
                 if (!result.Success)
                     EndProgramError(result.ToString());
 
-                ConsoleMessage.PrintSuccessMessage("[SUKCES] ");
-                Console.WriteLine(string.Format("Utworzono plik z danymi kalendarza w lokalizacji: {0}", calendarDataFile.Path));
+                ConsoleMessage.PrintSuccessMessage(string.Format("Utworzono plik z danymi kalendarza w lokalizacji: {0}", calendarDataFile.Path));
             }
 
             Console.WriteLine("\nCzy chcesz zmienić adres URL? Jeśli to pierwsze uruchomienie programu wybierz T [T/N]");
@@ -88,15 +85,14 @@ namespace PkCal
                         if (!result.Success)
                             EndProgramError(result.ToString());
 
-                        ConsoleMessage.PrintSuccessMessage("[SUKCES] ");
-                        Console.WriteLine("\nPoprawnie utworzono plik z linkiem do kalendarza!");
+                        ConsoleMessage.PrintSuccessMessage("\nPoprawnie utworzono plik z linkiem do kalendarza!");
                         break;
                     case "n":
                         isInputCorrect = true;
                         calendarEndpointDataFile.ReadContentFromFile();
                         break;
                     default:
-                        Console.WriteLine("Prosze wprowadzić poprawny znak odpowiedzi!");
+                        ConsoleMessage.PrintErrorMessage("Prosze wprowadzić poprawny znak odpowiedzi!");
                         break;
                 }
             }
@@ -137,14 +133,10 @@ namespace PkCal
             var newEventsResult = newEventsFinder.CheckNewEvents();
 
             if (!newEventsResult)
-            {
-                ConsoleMessage.PrintSuccessMessage("[SUKCES] ");
-                Console.WriteLine("NIE ZNALEZIONO ZMIAN W KALENDARZU!");
-            }
+                ConsoleMessage.PrintSuccessMessage("NIE ZNALEZIONO ZMIAN W KALENDARZU!");
             else
             {
-                ConsoleMessage.PrintWarningMessage("[UWAGA] ");
-                Console.WriteLine("ZNALEZIONO NOWE ZMIANY W KALENDARZU!");
+                ConsoleMessage.PrintWarningMessage("ZNALEZIONO NOWE ZMIANY W KALENDARZU!");
 
                 var newEventsPrinter = new CalendarEventsPrinter(newEventsFinder.NewEvents);
                 newEventsPrinter.PrintAllEvents();
@@ -152,18 +144,16 @@ namespace PkCal
             }
 
             calendarDataFile.SaveContentToFile();
-
+            
+            Console.WriteLine("\nNaciśnij przycisk aby zamknąć program...");
             Console.ReadKey();
         }
 
         private static void EndProgramError(string message)
         {
-            const string tag = "[BŁĄD] ";
-            
-            ConsoleMessage.PrintErrorMessage(tag);
-            Console.WriteLine(message);
+            ConsoleMessage.PrintErrorMessage(message);
             Console.WriteLine();
-            Console.WriteLine("Naciśnij przycisk aby zamknąć program");
+            Console.WriteLine("Naciśnij przycisk aby zamknąć program...");
 
             Console.ReadKey();
             Environment.Exit(-1);
