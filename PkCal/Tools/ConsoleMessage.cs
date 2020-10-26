@@ -15,30 +15,26 @@ namespace PkCal.Tools
 
         public static void PrintSuccessMessage(string message)
         {
-            var color = ConsoleColor.Green;
-
-            PrintMessageWithChangedColour(message, color);
+            PrintMessageWithChangedColour(message, ConsoleColor.Green);
         }
 
         public static void PrintWarningMessage(string message)
         {
-            var color = ConsoleColor.Yellow;
-
-            PrintMessageWithChangedColour(message, color);
+            PrintMessageWithChangedColour(message, ConsoleColor.Yellow);
         }
 
         public static void PrintErrorMessage(string message)
         {
-            var color = ConsoleColor.Red;
-
-            PrintMessageWithChangedColour(message, color);
+            PrintMessageWithChangedColour(message, ConsoleColor.Red);
         }
 
         private static void PrintMessageWithChangedColour(string message, ConsoleColor color)
         {
+            var currentForegroundColor = Console.ForegroundColor;
+            
             Console.ForegroundColor = color;
             Console.Write(message);
-            Console.ForegroundColor = ConsoleColor.Gray;
+            Console.ForegroundColor = currentForegroundColor;
         }
     }
 }
