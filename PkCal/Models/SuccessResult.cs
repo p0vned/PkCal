@@ -6,5 +6,10 @@
         {
             Success = true;
         }
+
+        public override string ToString()
+        {
+            return "Sukces";
+        }
     }
 }
