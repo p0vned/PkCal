@@ -3,7 +3,7 @@ using System.Threading;
 
 namespace PkCal.Tools
 {
-    public static class ConsoleMessage
+    static class ConsoleMessage
     {
         public static void ShowWelcomeMessage()
         {

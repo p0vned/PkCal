@@ -1,6 +1,6 @@
 ﻿namespace PkCal.Models
 {
-    public class SuccessResult : Result
+    class SuccessResult : Result
     {
         public SuccessResult()
         {

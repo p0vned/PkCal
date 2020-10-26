@@ -3,7 +3,7 @@ using System.IO;
 
 namespace PkCal.Models
 {
-    public class DataFile
+    class DataFile
     {
         public string Path { get; private set; }
 
