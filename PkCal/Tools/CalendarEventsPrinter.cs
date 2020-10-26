@@ -15,9 +15,13 @@ namespace PkCal.Tools
         }
 
         public bool PrintAllEvents()
-        {   
+        {
+            bool atLeastPrintedOnce = false;
+
             foreach (var calendarEvent in _events)
             {
+                atLeastPrintedOnce = true;
+
                 Console.WriteLine("======");
                 Console.WriteLine(string.Format("[KURS] {0}", calendarEvent.Categories.SingleOrDefault()));
                 Console.WriteLine(string.Format("[NAZWA WYDARZENIA] {0}", calendarEvent.Summary));
@@ -25,7 +29,7 @@ namespace PkCal.Tools
                 Console.WriteLine(string.Format("[TERMIN DO] {0}", calendarEvent.DtEnd));
             }
 
-            return _events.Count() != 0;
+            return atLeastPrintedOnce;
         }
     }
 }
