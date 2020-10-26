@@ -12,7 +12,7 @@ namespace PkCal
     {
         static void Main(string[] args)
         {
-            WelcomeMessage.Show();
+            ConsoleMessage.ShowWelcomeMessage();
 
             var configDirectoryName = ConfigurationManager.AppSettings["ConfigDirectoryName"];
             var calendarEndpointFileName = ConfigurationManager.AppSettings["EndpointCalendarFileName"];
