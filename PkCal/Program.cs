@@ -1,7 +1,6 @@
 ﻿using PkCal.Tools;
 using System;
 using System.IO;
-using System.Linq;
 using Ical.Net;
 using System.Configuration;
 using PkCal.Models;
