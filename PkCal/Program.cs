@@ -58,8 +58,7 @@ namespace PkCal
                 if (!result.Success)
                     EndProgramError(result.ToString());
 
-                ConsoleMessage.PrintSuccessMessage("[SUKCES] ");
-                Console.WriteLine(string.Format("Utworzono plik z danymi kalendarza w lokalizacji: {0}", calendarDataFile.Path));
+                ConsoleMessage.PrintSuccessMessage(string.Format("Utworzono plik z danymi kalendarza w lokalizacji: {0}", calendarDataFile.Path));
             }
 
             Console.WriteLine("\nCzy chcesz zmienić adres URL? Jeśli to pierwsze uruchomienie programu wybierz T [T/N]");
@@ -86,15 +85,14 @@ namespace PkCal
                         if (!result.Success)
                             EndProgramError(result.ToString());
 
-                        ConsoleMessage.PrintSuccessMessage("[SUKCES] ");
-                        Console.WriteLine("\nPoprawnie utworzono plik z linkiem do kalendarza!");
+                        ConsoleMessage.PrintSuccessMessage("\nPoprawnie utworzono plik z linkiem do kalendarza!");
                         break;
                     case "n":
                         isInputCorrect = true;
                         calendarEndpointDataFile.ReadContentFromFile();
                         break;
                     default:
-                        Console.WriteLine("Prosze wprowadzić poprawny znak odpowiedzi!");
+                        ConsoleMessage.PrintErrorMessage("Prosze wprowadzić poprawny znak odpowiedzi!");
                         break;
                 }
             }
