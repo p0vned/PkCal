@@ -4,7 +4,7 @@ using System.Text.RegularExpressions;
 
 namespace PkCal.Tools
 {
-    public class PathCreator
+    class PathCreator
     {
         private const string DirNamePattern = @"^\w+$";
         private const string FileNamePattern = @"^\w+\.\w+$";

@@ -3,26 +3,17 @@ using System.IO;
 
 namespace PkCal.Models
 {
-    public class DataFile
+    class DataFile
     {
         public string Path { get; private set; }
 
         public string Content { get; private set; }
 
-        public bool Exists { get; private set; }
+        public bool Exists { get { return File.Exists(Path); } }
 
         public DataFile(string path)
         {
             Path = path;
-            Exists = false;
-        }
-
-        public void CheckIfExists()
-        {
-            if (string.IsNullOrEmpty(Path))
-                throw new Exception("File path is empty!");
-
-            Exists = File.Exists(Path);
         }
 
         public Result SetContent(string value)

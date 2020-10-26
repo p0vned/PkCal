@@ -74,10 +74,11 @@
     <Compile Include="Models\SuccessResult.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Tools\CalendarEventsPrinter.cs" />
+    <Compile Include="Tools\CalendarNewEventsFinder.cs" />
     <Compile Include="Tools\ConsoleMessage.cs" />
     <Compile Include="Tools\FileFromWebObtainer.cs" />
     <Compile Include="Tools\PathCreator.cs" />
-    <Compile Include="Tools\WelcomeMessage.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

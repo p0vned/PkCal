@@ -1,7 +1,6 @@
 ﻿using PkCal.Tools;
 using System;
 using System.IO;
-using System.Linq;
 using Ical.Net;
 using System.Configuration;
 using PkCal.Models;
@@ -12,7 +11,7 @@ namespace PkCal
     {
         static void Main(string[] args)
         {
-            WelcomeMessage.Show();
+            ConsoleMessage.ShowWelcomeMessage();
 
             var configDirectoryName = ConfigurationManager.AppSettings["ConfigDirectoryName"];
             var calendarEndpointFileName = ConfigurationManager.AppSettings["EndpointCalendarFileName"];
@@ -40,8 +39,6 @@ namespace PkCal
                 Console.WriteLine(string.Format("Utworzono folder w lokalizacji: {0}", configDirPathBuilder.Path));
             }
 
-            calendarEndpointDataFile.CheckIfExists();
-
             Console.WriteLine("Sprawdzam, czy plik z URL do kalendarza istnieje, jeśli nie zostanie on utworzony...");
             if (!calendarEndpointDataFile.Exists)
             {
@@ -53,8 +50,6 @@ namespace PkCal
                 ConsoleMessage.PrintSuccessMessage("[SUKCES] ");
                 Console.WriteLine(string.Format("Utworzono plik z URL do kalendarza w lokalizacji: {0}", calendarEndpointDataFile.Path));
             }
-
-            calendarDataFile.CheckIfExists();
 
             Console.WriteLine("Sprawdzam, czy plik z danymi kalendarza istnieje jeśli nie zostanie on utworzony...");
             if (!calendarDataFile.Exists)
@@ -133,40 +128,28 @@ namespace PkCal
 
             Console.Clear();
 
-            foreach (var calendarEvent in calendarFile.Events)
-            {
-                Console.WriteLine("======");
-                Console.WriteLine(string.Format("[KURS] {0}", calendarEvent.Categories.SingleOrDefault()));
-                Console.WriteLine(string.Format("[NAZWA WYDARZENIA] {0}", calendarEvent.Summary));
-                Console.WriteLine(string.Format("[OPIS] {0}", calendarEvent.Description));
-                Console.WriteLine(string.Format("[TERMIN DO] {0}", calendarEvent.DtEnd));
-            }
+            var currentCalendarEventsPrinter = new CalendarEventsPrinter(calendarFile.Events);
+            currentCalendarEventsPrinter.PrintAllEvents();
 
             Console.WriteLine("==================================");
 
-            var eventsInCalendarFile = calendarFile.Events.ToHashSet();
-            var eventsInCalendarFromWeb = calendarWeb.Events.ToHashSet();
+            var newEventsFinder = new CalendarNewEventsFinder(calendarFile, calendarWeb);
+            var newEventsResult = newEventsFinder.CheckNewEvents();
 
-            var newEvents = eventsInCalendarFromWeb.Except(eventsInCalendarFile);
-
-            if (newEvents.Count() != 0)
+            if (!newEventsResult)
+            {
+                ConsoleMessage.PrintSuccessMessage("[SUKCES] ");
+                Console.WriteLine("NIE ZNALEZIONO ZMIAN W KALENDARZU!");
+            }
+            else
             {
                 ConsoleMessage.PrintWarningMessage("[UWAGA] ");
                 Console.WriteLine("ZNALEZIONO NOWE ZMIANY W KALENDARZU!");
 
-                foreach (var newEvent in newEvents)
-                {
-                    Console.WriteLine("======");
-                    Console.WriteLine(string.Format("[KURS] {0}", newEvent.Categories.SingleOrDefault()));
-                    Console.WriteLine(string.Format("[NAZWA WYDARZENIA] {0}", newEvent.Summary));
-                    Console.WriteLine(string.Format("[OPIS] {0}", newEvent.Description));
-                    Console.WriteLine(string.Format("[TERMIN DO] {0}", newEvent.DtEnd));
-
-                    calendarDataFile.SetContent(calendarDataObtainer.Content);
-                }
+                var newEventsPrinter = new CalendarEventsPrinter(newEventsFinder.NewEvents);
+                newEventsPrinter.PrintAllEvents();
+                calendarDataFile.SetContent(calendarDataObtainer.Content);
             }
-            else
-                Console.WriteLine("BRAK NOWYCH ZMIAN W KALENDARZU!");
 
             calendarDataFile.SaveContentToFile();
 

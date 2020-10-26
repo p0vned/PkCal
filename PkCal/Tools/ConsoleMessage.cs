@@ -3,7 +3,7 @@ using System.Threading;
 
 namespace PkCal.Tools
 {
-    public static class ConsoleMessage
+    static class ConsoleMessage
     {
         public static void ShowWelcomeMessage()
         {
@@ -15,30 +15,26 @@ namespace PkCal.Tools
 
         public static void PrintSuccessMessage(string message)
         {
-            var color = ConsoleColor.Green;
-
-            PrintMessageWithChangedColour(message, color);
+            PrintMessageWithChangedColor(message, ConsoleColor.Green);
         }
 
         public static void PrintWarningMessage(string message)
         {
-            var color = ConsoleColor.Yellow;
-
-            PrintMessageWithChangedColour(message, color);
+            PrintMessageWithChangedColor(message, ConsoleColor.Yellow);
         }
 
         public static void PrintErrorMessage(string message)
         {
-            var color = ConsoleColor.Red;
-
-            PrintMessageWithChangedColour(message, color);
+            PrintMessageWithChangedColor(message, ConsoleColor.Red);
         }
 
-        private static void PrintMessageWithChangedColour(string message, ConsoleColor color)
+        private static void PrintMessageWithChangedColor(string message, ConsoleColor color)
         {
+            var currentForegroundColor = Console.ForegroundColor;
+            
             Console.ForegroundColor = color;
             Console.Write(message);
-            Console.ForegroundColor = ConsoleColor.Gray;
+            Console.ForegroundColor = currentForegroundColor;
         }
     }
 }

@@ -1,6 +1,6 @@
 ﻿namespace PkCal.Models
 {
-    public class FailedResult : Result
+    class FailedResult : Result
     {
         public string Message { get; private set; }
 

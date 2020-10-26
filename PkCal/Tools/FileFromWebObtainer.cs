@@ -5,7 +5,7 @@ using System.Net;
 
 namespace PkCal.Tools
 {
-    public class FileFromWebObtainer
+    class FileFromWebObtainer
     {
         private RestClient _client;
         private Uri _uri;
