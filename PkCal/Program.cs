@@ -63,7 +63,7 @@ namespace PkCal
 
             SaveUrlToFileChoise(calendarEndpointDataFile);
 
-            if (calendarEndpointDataFile.Content == null)
+            if (string.IsNullOrEmpty(calendarEndpointDataFile.Content))
                 EndProgramError("Plik zawierający url do kalendarza jest pusty!");
 
             if (!calendarEndpointDataFile.Content.Contains("http"))
