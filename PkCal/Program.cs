@@ -61,41 +61,7 @@ namespace PkCal
                 ConsoleMessage.PrintSuccessMessage(string.Format("Utworzono plik z danymi kalendarza w lokalizacji: {0}", calendarDataFile.Path));
             }
 
-            Console.WriteLine("\nCzy chcesz zmienić adres URL? Jeśli to pierwsze uruchomienie programu wybierz T [T/N]");
-
-            bool isInputCorrect = false;
-
-            while (!isInputCorrect)
-            {
-                var input = Console.ReadLine();
-
-                input = input.ToLower();
-
-                switch (input)
-                {
-                    case "t":
-                        isInputCorrect = true;
-
-                        Console.WriteLine("Wprowadź adres URL do kalendarza:");
-
-                        var url = Console.ReadLine();
-                        calendarEndpointDataFile.SetContent(url);
-                        var result = calendarEndpointDataFile.SaveContentToFile();
-
-                        if (!result.Success)
-                            EndProgramError(result.ToString());
-
-                        ConsoleMessage.PrintSuccessMessage("\nPoprawnie utworzono plik z linkiem do kalendarza!");
-                        break;
-                    case "n":
-                        isInputCorrect = true;
-                        calendarEndpointDataFile.ReadContentFromFile();
-                        break;
-                    default:
-                        ConsoleMessage.PrintErrorMessage("Prosze wprowadzić poprawny znak odpowiedzi!");
-                        break;
-                }
-            }
+            SaveUrlToFileChoise(calendarEndpointDataFile);
 
             if (calendarEndpointDataFile.Content == null)
                 EndProgramError("Plik zawierający url do kalendarza jest pusty!");
@@ -157,6 +123,45 @@ namespace PkCal
 
             Console.ReadKey();
             Environment.Exit(-1);
+        }
+
+        private static void SaveUrlToFileChoise(DataFile calendarEndpoint)
+        {
+            Console.WriteLine("\nCzy chcesz zmienić adres URL? Jeśli to pierwsze uruchomienie programu wybierz T [T/N]");
+
+            bool isInputCorrect = false;
+
+            while (!isInputCorrect)
+            {
+                var input = Console.ReadLine();
+
+                input = input.ToLower();
+
+                switch (input)
+                {
+                    case "t":
+                        isInputCorrect = true;
+
+                        Console.WriteLine("Wprowadź adres URL do kalendarza:");
+
+                        var url = Console.ReadLine();
+                        calendarEndpoint.SetContent(url);
+                        var result = calendarEndpoint.SaveContentToFile();
+
+                        if (!result.Success)
+                            EndProgramError(result.ToString());
+
+                        ConsoleMessage.PrintSuccessMessage("\nPoprawnie utworzono plik z linkiem do kalendarza!");
+                        break;
+                    case "n":
+                        isInputCorrect = true;
+                        calendarEndpoint.ReadContentFromFile();
+                        break;
+                    default:
+                        ConsoleMessage.PrintErrorMessage("Prosze wprowadzić poprawny znak odpowiedzi!");
+                        break;
+                }
+            }
         }
     }
 }
